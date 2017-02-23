@@ -4,6 +4,13 @@ version = "0.1.0"
 authors = ["CrazyMerlyn <crazy.d.merlyn@gmail.com>"]
 description = "A library to programmatically communicate with UCI compatible chess engines"
 
+homepage = "https://github.com/crazymerlyn/uci-rs"
+repository = "https://github.com/crazymerlyn/uci-rs"
+
+readme = "README.md"
+
+license = "MIT"
+
 [dependencies]
 log = "0.3.6"
 
