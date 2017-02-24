@@ -1,11 +1,12 @@
 [package]
 name = "uci"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["CrazyMerlyn <crazy.d.merlyn@gmail.com>"]
 description = "A library to programmatically communicate with UCI compatible chess engines"
 
 homepage = "https://github.com/crazymerlyn/uci-rs"
 repository = "https://github.com/crazymerlyn/uci-rs"
+documentation = "https://docs.rs/uci"
 
 readme = "README.md"
 license = "MIT"
