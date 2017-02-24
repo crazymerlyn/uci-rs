@@ -62,7 +62,7 @@ impl Engine {
         self
     }
     
-    /// Asks the engine to play the given moves on it's internal board
+    /// Asks the engine to play the given moves from the initial position on it's internal board.
     /// 
     /// # Arguments
     ///
@@ -73,11 +73,33 @@ impl Engine {
     /// ```
     /// let engine = uci::Engine::new("stockfish").unwrap();
     /// let moves = vec!["e2e4".to_string(), "e7e5".to_string()];
-    /// engine.set_position(&moves).unwrap();
+    /// engine.make_moves(&moves).unwrap();
     /// ```
-    pub fn set_position(&self, moves: &Vec<String>) -> Result<()> {
+    pub fn make_moves(&self, moves: &Vec<String>) -> Result<()> {
         self.write_fmt(format_args!("position startpos moves {}\n",
                                     moves.join(" ")))?;
+        Ok(())
+    }
+    
+    /// Asks the engine to use the position represented by the given FEN string
+    /// 
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// engine.set_position("2k4R/8/3K4/8/8/8/8/8 b - - 0 1").unwrap();
+    /// assert_eq!(engine.bestmove().unwrap(), "c8b7");
+    /// ```
+    pub fn set_position(&self, fen: &str) -> Result<()> {
+        let moves: Vec<String> = vec![];
+        self.make_moves_from_position(fen, &moves)
+    }
+    
+    /// Asks the engine to use the position represented by the given FEN string
+    /// and then play the given moves from that position
+    pub fn make_moves_from_position(&self, fen: &str, moves: &Vec<String>) -> Result<()> {
+        self.write_fmt(format_args!("position fen {} moves {}\n",
+                                    fen, moves.join(" ")))?;
         Ok(())
     }
     
