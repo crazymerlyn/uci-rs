@@ -12,16 +12,28 @@ use std::time::Duration;
 use std::cell::RefCell;
 
 mod error;
-use error::{Result, EngineError};
+pub use error::{Result, EngineError};
 
 pub struct Engine {
     engine: RefCell<Child>,
-    depth: u32
+
+    movetime: u32
 }
 
-const DEFAULT_DEPTH: u32 = 10;
+const DEFAULT_TIME: u32 = 100;
 
 impl Engine {
+    /// Create a new [`Engine`] instance.
+    ///
+    /// # Arguments
+    /// 
+    /// * `path` - The path to the engine executable.
+    ///
+    /// # Panics
+    ///
+    /// * Panics if the engine couldn't be spawned (path is invalid, execution permission denied, etc.)
+    ///
+    /// [`Engine`]: struct.Engine.html
     pub fn new(path: &str) -> Result<Engine> {
         let cmd = Command::new(path)
                           .stdin(Stdio::piped())
@@ -31,7 +43,7 @@ impl Engine {
 
         let res = Engine {
             engine: RefCell::new(cmd),
-            depth: DEFAULT_DEPTH
+            movetime: DEFAULT_TIME
         };
 
         res.read_line()?;
@@ -39,20 +51,39 @@ impl Engine {
 
         Ok(res)
     }
-
-    pub fn depth(mut self, newdepth: u32) -> Engine {
-        self.depth = newdepth;
+    
+    /// Changes the amount of time the engine spends looking for a move
+    ///
+    /// # Arguments
+    /// 
+    /// * `new_movetime` - New timelimit in milliseconds
+    pub fn movetime(mut self, new_movetime: u32) -> Engine {
+        self.movetime = new_movetime;
         self
     }
-
+    
+    /// Asks the engine to play the given moves on it's internal board
+    /// 
+    /// # Arguments
+    ///
+    /// * `moves` - A list of moves for the engine to play. Uses Coordinate notation
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// let moves = vec!["e2e4".to_string(), "e7e5".to_string()];
+    /// engine.set_position(&moves).unwrap();
+    /// ```
     pub fn set_position(&self, moves: &Vec<String>) -> Result<()> {
         self.write_fmt(format_args!("position startpos moves {}\n",
                                     moves.join(" ")))?;
         Ok(())
     }
-
+    
+    /// Returns the best move in the current position according to the engine
     pub fn bestmove(&self) -> Result<String> {
-        self.write_fmt(format_args!("go depth {}\n", self.depth))?;
+        self.write_fmt(format_args!("go movetime {}\n", self.movetime))?;
         loop {
             let s = self.read_line()?;
             debug!("{}", s);
@@ -61,8 +92,21 @@ impl Engine {
             }
         }
     }
-
-    pub fn setoption(&self, name: &str, value: &str) -> Result<()> {
+    
+    /// Sets an engine specific option to the given value
+    ///
+    /// # Arguments
+    ///
+    /// * `name`  - Name of the option
+    /// * `value` - New value for the option
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// engine.set_option("Skill Level", "5").unwrap();
+    /// ```
+    pub fn set_option(&self, name: &str, value: &str) -> Result<()> {
         self.write_fmt(format_args!("setoption name {} value {}\n",
                                     name, value))?;
         let error_msg =  self.read_left_output()?;
@@ -73,7 +117,16 @@ impl Engine {
             Err(EngineError::UnknownOption(name.to_string()))
         }
     }
-
+    
+    /// Sends a command to the engine and returns the output
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// let analysis = engine.command("go depth 10").unwrap();
+    /// println!("{}", analysis);
+    /// ```
     pub fn command(&self, cmd: &str) -> Result<String> {
         self.write_fmt(format_args!("{}\n", cmd.trim()))?;
         thread::sleep(Duration::from_millis(100));
@@ -120,8 +173,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let engine = Engine::new("stockfish").unwrap();
-        engine.setoption("Skill Level", "15").unwrap();
+        let engine = Engine::new("stockfish").unwrap().movetime(200);
+        engine.set_option("Skill Level", "15").unwrap();
         let t = engine.bestmove().unwrap();
 
         println!("{}", t);

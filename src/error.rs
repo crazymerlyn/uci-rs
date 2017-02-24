@@ -3,10 +3,13 @@ use std::fmt;
 use std::convert::From;
 use std::io;
 
-
+/// The error type for any errors encountered with the engine.
 #[derive(Debug)]
 pub enum EngineError {
+    /// Wrapper around any io errors encountered while trying to communicate with the engine.
     Io(io::Error),
+
+    /// Engine doesn't recognize the specified option.
     UnknownOption(String),
 }
 
@@ -41,4 +44,7 @@ impl From<io::Error> for EngineError {
     }
 }
 
+/// A Result type which uses [`EngineError`] for representing errors.
+///
+/// [`EngineError`]: enum.EngineError.html
 pub type Result<T> = std::result::Result<T, EngineError>;
