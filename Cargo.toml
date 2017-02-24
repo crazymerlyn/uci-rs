@@ -8,8 +8,9 @@ homepage = "https://github.com/crazymerlyn/uci-rs"
 repository = "https://github.com/crazymerlyn/uci-rs"
 
 readme = "README.md"
-
 license = "MIT"
+categories = ["game-engines"]
+keywords = ["chess", "engine", "uci"]
 
 [dependencies]
 log = "0.3.6"
