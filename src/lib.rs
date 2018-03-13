@@ -75,7 +75,7 @@ impl Engine {
     /// let moves = vec!["e2e4".to_string(), "e7e5".to_string()];
     /// engine.make_moves(&moves).unwrap();
     /// ```
-    pub fn make_moves(&self, moves: &Vec<String>) -> Result<()> {
+    pub fn make_moves(&self, moves: &[String]) -> Result<()> {
         self.write_fmt(format_args!("position startpos moves {}\n",
                                     moves.join(" ")))?;
         Ok(())
