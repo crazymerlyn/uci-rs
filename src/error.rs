@@ -22,21 +22,6 @@ impl fmt::Display for EngineError {
     }
 }
 
-impl std::error::Error for EngineError {
-    fn description(&self) -> &str {
-        match *self {
-            EngineError::Io(ref err) => err.description(),
-            EngineError::UnknownOption(..) => "Unknown option"
-        }
-    }
-
-    fn cause(&self) -> Option<&std::error::Error> {
-        match *self {
-            EngineError::Io(ref err) => Some(err),
-            EngineError::UnknownOption(..) => None
-        }
-    }
-}
 
 impl From<io::Error> for EngineError {
     fn from(err: io::Error) -> EngineError {
