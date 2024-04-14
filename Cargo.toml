@@ -14,5 +14,5 @@ categories = ["game-engines"]
 keywords = ["chess", "engine", "uci"]
 
 [dependencies]
-log = "0.3.6"
+log = "0.4.21"
 
