@@ -202,6 +202,25 @@ impl Engine {
         self.read_left_output()
     }
 
+    /// Sends a command to the engine and waits untill the engine returns a
+    /// line starting with the specified prefix
+    ///
+    /// # Errors
+    ///
+    /// Returns an `EngineError` if there was an error while sending the command to the engine
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// let analysis = engine.command_and_wait_for("go depth 10", "bestmove").unwrap();
+    /// println!("{}", analysis);
+    /// ```
+    pub fn command_and_wait_for(&self, cmd: &str, prefix: &str) -> Result<String> {
+        self.write_fmt(format_args!("{}\n", cmd.trim()))?;
+        self.read_till_prefix(prefix)
+    }
+
     fn read_left_output(&self) -> Result<String> {
         let mut s: Vec<String> = vec![];
 
@@ -211,6 +230,18 @@ impl Engine {
             match next_line.trim() {
                 "readyok" => return Ok(s.join("\n")),
                 other => s.push(other.to_string()),
+            }
+        }
+    }
+
+    fn read_till_prefix(&self, prefix: &str) -> Result<String> {
+        let mut result: Vec<String> = vec![];
+
+        loop {
+            let next_line = self.read_line()?;
+            result.push(next_line);
+            if result.last().unwrap().starts_with(prefix) {
+                return Ok(result.join("\n"));
             }
         }
     }
