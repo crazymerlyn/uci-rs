@@ -182,6 +182,26 @@ impl Engine {
         self.read_left_output()
     }
 
+    /// Sends a command to the engine and waits for specified duration before returning the output
+    ///
+    /// # Errors
+    ///
+    /// Returns an `EngineError` if there was an error while sending the command to the engine
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::time::Duration;
+    /// let engine = uci::Engine::new("stockfish").unwrap();
+    /// let analysis = engine.command_with_duration("go depth 10", Duration::from_millis(200)).unwrap();
+    /// println!("{}", analysis);
+    /// ```
+    pub fn command_with_duration(&self, cmd: &str, duration: Duration) -> Result<String> {
+        self.write_fmt(format_args!("{}\n", cmd.trim()))?;
+        thread::sleep(duration);
+        self.read_left_output()
+    }
+
     fn read_left_output(&self) -> Result<String> {
         let mut s: Vec<String> = vec![];
 
