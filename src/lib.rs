@@ -7,13 +7,15 @@ use std::io::Write;
 use std::io::{self, Read};
 
 use std::fmt;
+use std::rc::Rc;
 use std::thread;
 use std::time::Duration;
 
 use std::cell::RefCell;
 
+#[derive(Clone)]
 pub struct Engine {
-    engine: RefCell<Child>,
+    engine: Rc<RefCell<Child>>,
 
     movetime: u32,
 }
@@ -44,7 +46,7 @@ impl Engine {
             .expect("Unable to run engine");
 
         let res = Engine {
-            engine: RefCell::new(cmd),
+            engine: Rc::new(RefCell::new(cmd)),
             movetime: DEFAULT_TIME,
         };
 
