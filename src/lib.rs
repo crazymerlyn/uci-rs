@@ -50,7 +50,6 @@ impl Engine {
             movetime: DEFAULT_TIME,
         };
 
-        res.read_line()?;
         res.command("uci")?;
 
         Ok(res)
