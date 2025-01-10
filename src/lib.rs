@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 
+use std::ffi::OsStr;
 use std::process::{Child, Command, Stdio};
 
 use std::io::Write;
@@ -44,6 +45,46 @@ impl Engine {
             .stdout(Stdio::piped())
             .spawn()
             .expect("Unable to run engine");
+
+        let res = Engine {
+            engine: Rc::new(RefCell::new(cmd)),
+            movetime: DEFAULT_TIME,
+        };
+
+        res.command("uci")?;
+
+        Ok(res)
+    }
+
+    /// Create a new [`Engine`] instance with arguments.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The path to the engine executable.
+    /// * `args` - An iterable of arguments.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `EngineError` if there's an error while spawning command or communicating with the engine.
+    ///
+    /// [`Engine`]: struct.Engine.html
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let engine = uci::Engine::with_args("gnuchess", ["--uci"]).unwrap();
+    /// ```
+    pub fn with_args<I, S>(path: &str, args: I) -> Result<Engine>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
+        let cmd = Command::new(path)
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .map_err(|err| EngineError::Io(err))?;
 
         let res = Engine {
             engine: Rc::new(RefCell::new(cmd)),
