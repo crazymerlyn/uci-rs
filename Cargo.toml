@@ -1,6 +1,6 @@
 [package]
 name = "uci"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["CrazyMerlyn <crazy.d.merlyn@gmail.com>"]
 description = "A library to programmatically communicate with UCI compatible chess engines"
 

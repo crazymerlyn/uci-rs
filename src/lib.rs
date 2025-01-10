@@ -40,20 +40,7 @@ impl Engine {
     ///
     /// [`Engine`]: struct.Engine.html
     pub fn new(path: &str) -> Result<Engine> {
-        let cmd = Command::new(path)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("Unable to run engine");
-
-        let res = Engine {
-            engine: Rc::new(RefCell::new(cmd)),
-            movetime: DEFAULT_TIME,
-        };
-
-        res.command("uci")?;
-
-        Ok(res)
+        Engine::with_args(path, Vec::<&str>::new())
     }
 
     /// Create a new [`Engine`] instance with arguments.
@@ -84,7 +71,7 @@ impl Engine {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
-            .map_err(|err| EngineError::Io(err))?;
+            .map_err(EngineError::Io)?;
 
         let res = Engine {
             engine: Rc::new(RefCell::new(cmd)),
