@@ -307,6 +307,28 @@ impl Engine {
     }
 }
 
+impl Drop for Engine {
+    fn drop(&mut self) {
+        // As per the documentation: https://doc.rust-lang.org/std/process/struct.Child.html
+        //
+        // "There is no implementation of Drop for child processes, so if you do not ensure
+        // the Child has exited then it will continue to run, even after the Child handle
+        // to the child process has gone out of scope."
+        //
+        // And I've seen that with at least 3 engines out of 4 - pm
+        let mut engine = self.engine.borrow_mut();
+
+        // this helps as well.
+        let _ = engine
+            .stdin
+            .as_mut()
+            .unwrap()
+            .write_fmt(format_args!("quit\n",));
+
+        let _ = engine.wait();
+    }
+}
+
 /// The error type for any errors encountered with the engine.
 #[derive(Debug)]
 pub enum EngineError {
